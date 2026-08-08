@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 enum class OpType {
     SEQ, OPER,
@@ -27,7 +28,8 @@ enum class Quantifier {
     UNL_OPT,
     UNL_OPT_START,
     UNL_OPT_END,
-    ONE_OPT
+    ONE_OPT,
+    ONLY_ONE
 };
 struct Slot {
     OpType type;
@@ -35,7 +37,7 @@ struct Slot {
     Spec spec = Spec::NONE;
 };
 
-inline std::vector<std::unique_ptr<Slot>> get_approved(OpType op, Spec s = Spec::NONE) {
+inline std::vector<std::unique_ptr<Slot>> get_approved(const OpType& op, const Spec& s = Spec::NONE) {
     std::vector<std::unique_ptr<Slot>> v;
     switch (op) {
         case OpType::SEQ: {
@@ -103,8 +105,8 @@ inline std::vector<std::unique_ptr<Slot>> get_approved(OpType op, Spec s = Spec:
         case OpType::FACTOR:
         {
 
-            v.push_back(std::make_unique<Slot>(Slot{OpType::FLT, Quantifier::ONE_OPT}));
-            v.push_back(std::make_unique<Slot>(Slot{OpType::MATH, Quantifier::ONE_OPT}));
+            v.push_back(std::make_unique<Slot>(Slot{OpType::FLT, Quantifier::ONLY_ONE}));
+            v.push_back(std::make_unique<Slot>(Slot{OpType::MATH, Quantifier::ONLY_ONE}));
             return v;
         }
             default: {
@@ -119,8 +121,9 @@ inline std::vector<std::unique_ptr<Slot>> get_approved(OpType op, Spec s = Spec:
 class Node {
 public:
     Node();
-    std::vector<float>  evaluate(std::vector<float> input);
     bool check();
+    std::vector<float> run(std::unordered_map<int,float>& input);
+
     
     OpType type;
     Spec spec;
